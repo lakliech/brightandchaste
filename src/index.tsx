@@ -16,10 +16,10 @@ const PAGE = html`<!DOCTYPE html>
   <meta name="theme-color" content="#F59E0B" />
   <link rel="icon" type="image/png" href="/static/logo.png" />
 
-  <!-- Fonts -->
+  <!-- Font: Onest -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" />
@@ -47,8 +47,8 @@ const PAGE = html`<!DOCTYPE html>
             dark: '#0f172a',
           },
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['"Playfair Display"', 'serif'],
+            sans: ['Onest', 'sans-serif'],
+            display: ['Onest', 'sans-serif'],
           },
         }
       }

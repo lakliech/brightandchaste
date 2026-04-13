@@ -1,7 +1,34 @@
 import { Hono } from 'hono'
 import { html } from 'hono/html'
+import { serveStatic } from 'hono/cloudflare-workers'
+import { cors } from 'hono/cors'
+import { auth } from './routes/auth'
+import { api } from './routes/cms-api'
+import { pub } from './routes/public-api'
+import { CMS_PAGE } from './cms'
 
-const app = new Hono()
+type Bindings = { DB: D1Database }
+
+const app = new Hono<{ Bindings: Bindings }>()
+
+// ── Static files ────────────────────────────────────────────────────
+app.use('/static/*', serveStatic({ root: './' }))
+
+// ── CORS for API routes ─────────────────────────────────────────────
+app.use('/api/*', cors())
+
+// ── CMS Auth routes  (/api/cms/login, /logout, /me, etc.) ──────────
+app.route('/api/cms', auth)
+
+// ── CMS Content API (protected) ─────────────────────────────────────
+app.route('/api/cms', api)
+
+// ── Public content API (for frontend) ───────────────────────────────
+app.route('/api/public', pub)
+
+// ── CMS admin panel ─────────────────────────────────────────────────
+app.get('/cms', (c) => c.html(CMS_PAGE as string))
+app.get('/cms/', (c) => c.redirect('/cms', 301))
 
 const PAGE = html`<!DOCTYPE html>
 <html lang="en">
@@ -181,16 +208,16 @@ const PAGE = html`<!DOCTYPE html>
       <!-- Badge -->
       <div class="fade-up inline-flex items-center gap-2 bg-brand-500/20 border border-brand-400/40 text-brand-300 text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
         <i class="fas fa-certificate text-brand-400"></i>
-        NCA Level 3 Accredited &bull; Est. 2019 &bull; Nairobi, Kenya
+        <span id="hero-badge">NCA Level 3 Accredited &bull; Est. 2019 &bull; Nairobi, Kenya</span>
       </div>
 
       <h1 class="fade-up delay-1 font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-6">
-        Building Kenya's<br/>
-        <span class="text-brand-400">Infrastructure</span><br/>
+        <span id="hero-heading">Building Kenya's</span><br/>
+        <span id="hero-highlight" class="text-brand-400">Infrastructure</span><br/>
         for Tomorrow
       </h1>
 
-      <p class="fade-up delay-2 text-gray-300 text-lg sm:text-xl leading-relaxed mb-10 max-w-2xl">
+      <p id="hero-subheading" class="fade-up delay-2 text-gray-300 text-lg sm:text-xl leading-relaxed mb-10 max-w-2xl">
         Bright and Chaste Limited is a premier civil engineering and construction company delivering world-class roads, buildings, water systems and ICT infrastructure across Kenya.
       </p>
 
@@ -293,14 +320,14 @@ const PAGE = html`<!DOCTYPE html>
         <div class="inline-flex items-center gap-2 text-brand-600 text-xs font-bold uppercase tracking-widest mb-4">
           <span class="w-8 h-0.5 bg-brand-500"></span> About Us
         </div>
-        <h2 class="font-display text-3xl sm:text-4xl font-bold text-dark mb-6 leading-tight">
+        <h2 id="about-heading" class="font-display text-3xl sm:text-4xl font-bold text-dark mb-6 leading-tight">
           Kenya's Trusted Partner in Civil Engineering &amp; Construction
         </h2>
 
-        <p class="text-gray-600 leading-relaxed mb-5">
+        <p id="about-body1" class="text-gray-600 leading-relaxed mb-5">
           Bright and Chaste Limited is a registered construction company established in 2019. Since our inception, we have provided high-quality construction services across various sectors, ensuring reliability, innovation and value for our clients.
         </p>
-        <p class="text-gray-600 leading-relaxed mb-8">
+        <p id="about-body2" class="text-gray-600 leading-relaxed mb-8">
           Our team of experienced professionals is dedicated to delivering innovative and sustainable solutions that exceed client expectations. We aspire to be the leading construction company in Kenya and a globally recognised brand in the industry — serving county governments, water boards, private developers and development agencies alike.
         </p>
 
@@ -357,7 +384,7 @@ const PAGE = html`<!DOCTYPE html>
           <i class="fas fa-bullseye text-brand-400 text-xl"></i>
         </div>
         <h3 class="font-display font-bold text-xl mb-3">Our Mission</h3>
-        <p class="text-gray-400 leading-relaxed text-sm">
+        <p id="about-mission" class="text-gray-400 leading-relaxed text-sm">
           To deliver safe, sustainable and high-quality infrastructure that improves lives, stimulates economic growth and builds lasting communities across Kenya.
         </p>
       </div>
@@ -366,7 +393,7 @@ const PAGE = html`<!DOCTYPE html>
           <i class="fas fa-eye text-white text-xl"></i>
         </div>
         <h3 class="font-display font-bold text-xl mb-3">Our Vision</h3>
-        <p class="text-brand-50 leading-relaxed text-sm">
+        <p id="about-vision" class="text-brand-50 leading-relaxed text-sm">
           To be the leading construction and engineering company in Kenya, recognised for innovation, integrity and excellence on every project we undertake.
         </p>
       </div>
@@ -405,124 +432,11 @@ const PAGE = html`<!DOCTYPE html>
       </p>
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-      <!-- Road Construction -->
-      <article class="service-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group cursor-pointer">
-        <div class="h-48 overflow-hidden relative">
-          <img
-            src="https://sspark.genspark.ai/cfimages?u1=fDxa4ICAhopvL9oQYphnom0dPGiXKm3P6vdfkPLYZZzZ8RDjkGcqpAEvbFsDuDjMVXIydCqzZBZz2yZHR104xB91BRVjQBj9986mHnN0ctIf9PiJvjIZ8VoCUA8VWpQm04YyFIweENHs6q055NVirZ51PL3b5A%3D%3D&u2=PTMubkcPBMKJCtce&width=2560"
-            alt="Road construction Kenya"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
-          <div class="absolute bottom-3 left-4">
-            <span class="bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Road Works</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
-            <i class="fas fa-road text-brand-600 text-xl"></i>
-          </div>
-          <h3 class="font-display font-bold text-lg text-dark mb-3">Road Construction</h3>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">
-            Design, construction and rehabilitation of urban roads, rural access roads, highways and associated infrastructure including drainage and road furniture.
-          </p>
-          <ul class="space-y-1.5 text-sm text-gray-600">
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Urban &amp; rural roads</li>
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Drainage systems</li>
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Road rehabilitation</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- Building Construction -->
-      <article class="service-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group cursor-pointer">
-        <div class="h-48 overflow-hidden relative">
-          <img
-            src="https://sspark.genspark.ai/cfimages?u1=ZggYI%2Fbz32xB%2BZbU1JIEMzv1WkHfz743I%2FzxOziAAckPCGVbR%2B%2FsW9Ya6pq9HWdA29v4xBj0N1%2FgoEEYd4xWbbcwbHnNrXWsQEBKrQmqjM9%2F69ETAY7BqYykES%2F2hsz1auaIGMSoSatnchOVDe%2F9TjZKbwtkyThIRglya4PoqOScBq%2FPEzcjAQ%3D%3D&u2=Xu9bN4A2JeLSXXCP&width=2560"
-            alt="Building construction Kenya"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
-          <div class="absolute bottom-3 left-4">
-            <span class="bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Building Works</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
-            <i class="fas fa-building text-brand-600 text-xl"></i>
-          </div>
-          <h3 class="font-display font-bold text-lg text-dark mb-3">Building Construction</h3>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">
-            Full lifecycle building projects — from initial planning, structural works and MEP installations through to final finishing for residential and commercial developments.
-          </p>
-          <ul class="space-y-1.5 text-sm text-gray-600">
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Residential &amp; commercial</li>
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Structural works</li>
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Interior finishing</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- Water Engineering -->
-      <article class="service-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group cursor-pointer">
-        <div class="h-48 overflow-hidden relative">
-          <img
-            src="https://sspark.genspark.ai/cfimages?u1=VmwcyWsUvvPfRd5MmVP0kwg6LoYdkBCJCc9psAFM3HRHGEJgYYcJfoccx9teLwUzM9y8fj1BUTRTnxGoJm98FdZuqaH0jd6SHb8bKysbnasbpQus87sFZ0PmY7AsXXNs6r3nCR2C&u2=9jCYkFYS3UerBaJv&width=2560"
-            alt="Water engineering Kenya"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
-          <div class="absolute bottom-3 left-4">
-            <span class="bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Water Works</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
-            <i class="fas fa-water text-brand-600 text-xl"></i>
-          </div>
-          <h3 class="font-display font-bold text-lg text-dark mb-3">Water Engineering</h3>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">
-            Design and construction of reliable water supply networks, sewerage systems and sanitation infrastructure, working closely with county governments and water boards.
-          </p>
-          <ul class="space-y-1.5 text-sm text-gray-600">
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Water supply networks</li>
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Sewerage systems</li>
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Sanitation infrastructure</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- ICT Infrastructure -->
-      <article class="service-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group cursor-pointer">
-        <div class="h-48 overflow-hidden relative">
-          <img
-            src="https://sspark.genspark.ai/cfimages?u1=Zx%2FM2AO7cTcUJwA5zzUjkJ5dQKnYpy9lO67us2AvXrHhEFi1lGqO%2FR0%2F2WUZGMPY%2BAnI%2Bsq3seK9lE9scOVSEtePQnopWDxlIMSWtAf0HL4yvewRuV6I0g3gEmyZJARoXcJsbrPV9ulNoXukjDo4RlZf9NCIHMKb53V2oKZ1whCwARaPNrHE%2B4Reksziv%2B%2Bq3SDVFY71JJn%2F7vAEbXUpFetY%2BJLF5bs%3D&u2=cdirMomUf6TETap7&width=2560"
-            alt="Fiber optic ICT infrastructure installation"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
-          <div class="absolute bottom-3 left-4">
-            <span class="bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">ICT Works</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
-            <i class="fas fa-network-wired text-brand-600 text-xl"></i>
-          </div>
-          <h3 class="font-display font-bold text-lg text-dark mb-3">ICT Infrastructure</h3>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">
-            Design, installation and maintenance of fiber optic networks, structured cabling and ICT infrastructure for residential, commercial and industrial projects across Kenya.
-          </p>
-          <ul class="space-y-1.5 text-sm text-gray-600">
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Fiber optic networks</li>
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Structured cabling</li>
-            <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> Data centre setups</li>
-          </ul>
-        </div>
-      </article>
-
+    <div id="services-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Dynamically loaded from CMS database -->
+      <div class="col-span-4 text-center py-8 text-gray-400 text-sm">
+        <i class="fas fa-spinner fa-spin mr-2"></i>Loading services...
+      </div>
     </div>
   </div>
 </section>
@@ -575,96 +489,11 @@ const PAGE = html`<!DOCTYPE html>
       </p>
     </div>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-      <!-- Project 1 -->
-      <article class="project-card rounded-2xl overflow-hidden shadow-md group cursor-pointer relative">
-        <img
-          src="https://sspark.genspark.ai/cfimages?u1=ldTxa5XiQv8QZaVr%2BKAWoYf6plPQOY6fELlIx15zYuwE%2F1wMMOIoW2P6j3TV%2B%2FkMQNRFF4k308wK2vejFfxG4%2B2nazrsmbpFbLNbiN2qNoQmXeLGCbc13KkPxOrTQXfeaUGyq84SHoWfX7sJ2t6X&u2=0w6KH8HcePGGEWZl&width=2560"
-          alt="Ndeiya Community Water Project - Kiambu County"
-          class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        <div class="overlay absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/50 to-transparent flex flex-col justify-end p-6">
-          <span class="text-brand-400 text-xs font-bold uppercase tracking-widest mb-2">Water Engineering</span>
-          <h3 class="text-white font-display font-bold text-xl mb-2">Ndeiya Community Water Project</h3>
-          <p class="text-gray-300 text-sm mb-3">Piping of Gitogothi Ndeiya Water, Limuru — Kiambu County Government</p>
-          <div class="flex items-center gap-3 text-xs text-gray-400">
-            <span class="flex items-center gap-1"><i class="fas fa-map-marker-alt text-brand-400"></i> Limuru, Kiambu</span>
-            <span class="flex items-center gap-1"><i class="fas fa-clock text-brand-400"></i> 3 Weeks</span>
-          </div>
-        </div>
-        <!-- Always-visible bottom strip -->
-        <div class="p-5 bg-white border-t border-gray-100">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="font-semibold text-dark text-sm">Ndeiya Community Water Project</p>
-              <p class="text-gray-400 text-xs mt-0.5">Kiambu County Government</p>
-            </div>
-            <span class="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600">
-              <i class="fas fa-water text-sm"></i>
-            </span>
-          </div>
-        </div>
-      </article>
-
-      <!-- Project 2 -->
-      <article class="project-card rounded-2xl overflow-hidden shadow-md group cursor-pointer relative">
-        <img
-          src="https://sspark.genspark.ai/cfimages?u1=Zx%2FM2AO7cTcUJwA5zzUjkJ5dQKnYpy9lO67us2AvXrHhEFi1lGqO%2FR0%2F2WUZGMPY%2BAnI%2Bsq3seK9lE9scOVSEtePQnopWDxlIMSWtAf0HL4yvewRuV6I0g3gEmyZJARoXcJsbrPV9ulNoXukjDo4RlZf9NCIHMKb53V2oKZ1whCwARaPNrHE%2B4Reksziv%2B%2Bq3SDVFY71JJn%2F7vAEbXUpFetY%2BJLF5bs%3D&u2=cdirMomUf6TETap7&width=2560"
-          alt="Fiber optic installation project"
-          class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        <div class="overlay absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/50 to-transparent flex flex-col justify-end p-6">
-          <span class="text-brand-400 text-xs font-bold uppercase tracking-widest mb-2">ICT Infrastructure</span>
-          <h3 class="text-white font-display font-bold text-xl mb-2">Fiber Optic Network Installation</h3>
-          <p class="text-gray-300 text-sm mb-3">Design, supply and installation of fiber optic cabling for enterprise connectivity</p>
-          <div class="flex items-center gap-3 text-xs text-gray-400">
-            <span class="flex items-center gap-1"><i class="fas fa-map-marker-alt text-brand-400"></i> Nairobi Region</span>
-            <span class="flex items-center gap-1"><i class="fas fa-check-circle text-brand-400"></i> Completed</span>
-          </div>
-        </div>
-        <div class="p-5 bg-white border-t border-gray-100">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="font-semibold text-dark text-sm">Fiber Optic Network Installation</p>
-              <p class="text-gray-400 text-xs mt-0.5">Enterprise Connectivity Project</p>
-            </div>
-            <span class="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600">
-              <i class="fas fa-network-wired text-sm"></i>
-            </span>
-          </div>
-        </div>
-      </article>
-
-      <!-- Project 3 -->
-      <article class="project-card rounded-2xl overflow-hidden shadow-md group cursor-pointer relative">
-        <img
-          src="https://sspark.genspark.ai/cfimages?u1=fDxa4ICAhopvL9oQYphnom0dPGiXKm3P6vdfkPLYZZzZ8RDjkGcqpAEvbFsDuDjMVXIydCqzZBZz2yZHR104xB91BRVjQBj9986mHnN0ctIf9PiJvjIZ8VoCUA8VWpQm04YyFIweENHs6q055NVirZ51PL3b5A%3D%3D&u2=PTMubkcPBMKJCtce&width=2560"
-          alt="Road construction project Kenya"
-          class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        <div class="overlay absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/50 to-transparent flex flex-col justify-end p-6">
-          <span class="text-brand-400 text-xs font-bold uppercase tracking-widest mb-2">Road Construction</span>
-          <h3 class="text-white font-display font-bold text-xl mb-2">Road Construction &amp; Rehabilitation</h3>
-          <p class="text-gray-300 text-sm mb-3">Construction and rehabilitation of access roads and drainage infrastructure</p>
-          <div class="flex items-center gap-3 text-xs text-gray-400">
-            <span class="flex items-center gap-1"><i class="fas fa-map-marker-alt text-brand-400"></i> Kenya</span>
-            <span class="flex items-center gap-1"><i class="fas fa-check-circle text-brand-400"></i> Ongoing</span>
-          </div>
-        </div>
-        <div class="p-5 bg-white border-t border-gray-100">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="font-semibold text-dark text-sm">Road Construction &amp; Rehabilitation</p>
-              <p class="text-gray-400 text-xs mt-0.5">County &amp; National Road Works</p>
-            </div>
-            <span class="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600">
-              <i class="fas fa-road text-sm"></i>
-            </span>
-          </div>
-        </div>
-      </article>
-
+    <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Dynamically loaded from CMS database -->
+      <div class="col-span-3 text-center py-8 text-gray-400 text-sm">
+        <i class="fas fa-spinner fa-spin mr-2"></i>Loading projects...
+      </div>
     </div>
 
     <div class="text-center mt-10">
@@ -816,7 +645,7 @@ const PAGE = html`<!DOCTYPE html>
               </div>
               <div>
                 <div class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-1">Office Address</div>
-                <div class="text-white text-sm leading-relaxed">Nairobi, Kenya</div>
+                <div id="contact-address" class="text-white text-sm leading-relaxed">Nairobi, Kenya</div>
               </div>
             </div>
 
@@ -826,7 +655,7 @@ const PAGE = html`<!DOCTYPE html>
               </div>
               <div>
                 <div class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-1">Phone</div>
-                <a href="tel:+254700000000" class="text-white text-sm hover:text-brand-400 transition-colors">+254 700 000 000</a>
+                <a id="contact-phone-link" href="tel:+254700000000" class="text-white text-sm hover:text-brand-400 transition-colors"><span id="contact-phone">+254 700 000 000</span></a>
               </div>
             </div>
 
@@ -836,7 +665,7 @@ const PAGE = html`<!DOCTYPE html>
               </div>
               <div>
                 <div class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-1">Email</div>
-                <a href="mailto:info@brightandchaste.co.ke" class="text-white text-sm hover:text-brand-400 transition-colors">info@brightandchaste.co.ke</a>
+                <a id="contact-email-link" href="mailto:info@brightandchaste.co.ke" class="text-white text-sm hover:text-brand-400 transition-colors"><span id="contact-email">info@brightandchaste.co.ke</span></a>
               </div>
             </div>
 
@@ -855,16 +684,16 @@ const PAGE = html`<!DOCTYPE html>
           <div class="mt-8 pt-6 border-t border-white/10">
             <div class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-4">Follow Us</div>
             <div class="flex gap-3">
-              <a href="#" aria-label="Facebook" class="w-10 h-10 bg-white/10 hover:bg-brand-500 rounded-lg flex items-center justify-center text-white transition-colors">
+              <a id="social-facebook" href="#" aria-label="Facebook" class="w-10 h-10 bg-white/10 hover:bg-brand-500 rounded-lg flex items-center justify-center text-white transition-colors">
                 <i class="fab fa-facebook-f text-sm"></i>
               </a>
-              <a href="#" aria-label="LinkedIn" class="w-10 h-10 bg-white/10 hover:bg-brand-500 rounded-lg flex items-center justify-center text-white transition-colors">
+              <a id="social-linkedin" href="#" aria-label="LinkedIn" class="w-10 h-10 bg-white/10 hover:bg-brand-500 rounded-lg flex items-center justify-center text-white transition-colors">
                 <i class="fab fa-linkedin-in text-sm"></i>
               </a>
-              <a href="#" aria-label="Twitter/X" class="w-10 h-10 bg-white/10 hover:bg-brand-500 rounded-lg flex items-center justify-center text-white transition-colors">
+              <a id="social-twitter" href="#" aria-label="Twitter/X" class="w-10 h-10 bg-white/10 hover:bg-brand-500 rounded-lg flex items-center justify-center text-white transition-colors">
                 <i class="fab fa-x-twitter text-sm"></i>
               </a>
-              <a href="#" aria-label="WhatsApp" class="w-10 h-10 bg-white/10 hover:bg-brand-500 rounded-lg flex items-center justify-center text-white transition-colors">
+              <a id="social-whatsapp" href="#" aria-label="WhatsApp" class="w-10 h-10 bg-white/10 hover:bg-brand-500 rounded-lg flex items-center justify-center text-white transition-colors">
                 <i class="fab fa-whatsapp text-sm"></i>
               </a>
             </div>
@@ -971,16 +800,16 @@ const PAGE = html`<!DOCTYPE html>
           NCA Level 3 accredited civil engineering and construction company based in Nairobi, Kenya. Founded 2019.
         </p>
         <div class="flex gap-3">
-          <a href="#" aria-label="Facebook" class="w-9 h-9 bg-white/5 hover:bg-brand-500 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+          <a id="footer-facebook" href="#" aria-label="Facebook" class="w-9 h-9 bg-white/5 hover:bg-brand-500 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors">
             <i class="fab fa-facebook-f text-sm"></i>
           </a>
-          <a href="#" aria-label="LinkedIn" class="w-9 h-9 bg-white/5 hover:bg-brand-500 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+          <a id="footer-linkedin" href="#" aria-label="LinkedIn" class="w-9 h-9 bg-white/5 hover:bg-brand-500 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors">
             <i class="fab fa-linkedin-in text-sm"></i>
           </a>
-          <a href="#" aria-label="Twitter/X" class="w-9 h-9 bg-white/5 hover:bg-brand-500 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+          <a id="footer-twitter" href="#" aria-label="Twitter/X" class="w-9 h-9 bg-white/5 hover:bg-brand-500 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors">
             <i class="fab fa-x-twitter text-sm"></i>
           </a>
-          <a href="#" aria-label="WhatsApp" class="w-9 h-9 bg-white/5 hover:bg-brand-500 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+          <a id="footer-whatsapp" href="#" aria-label="WhatsApp" class="w-9 h-9 bg-white/5 hover:bg-brand-500 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors">
             <i class="fab fa-whatsapp text-sm"></i>
           </a>
         </div>
@@ -1015,15 +844,15 @@ const PAGE = html`<!DOCTYPE html>
         <ul class="space-y-4 text-sm">
           <li class="flex items-start gap-3">
             <i class="fas fa-map-marker-alt text-brand-500 mt-0.5"></i>
-            <span>Nairobi, Kenya</span>
+            <span id="footer-address">Nairobi, Kenya</span>
           </li>
           <li class="flex items-start gap-3">
             <i class="fas fa-phone-alt text-brand-500 mt-0.5"></i>
-            <a href="tel:+254700000000" class="hover:text-brand-400 transition-colors">+254 700 000 000</a>
+            <a id="footer-phone" href="tel:+254700000000" class="hover:text-brand-400 transition-colors">+254 700 000 000</a>
           </li>
           <li class="flex items-start gap-3">
             <i class="fas fa-envelope text-brand-500 mt-0.5"></i>
-            <a href="mailto:info@brightandchaste.co.ke" class="hover:text-brand-400 transition-colors">info@brightandchaste.co.ke</a>
+            <a id="footer-email" href="mailto:info@brightandchaste.co.ke" class="hover:text-brand-400 transition-colors">info@brightandchaste.co.ke</a>
           </li>
           <li class="flex items-start gap-3">
             <i class="fas fa-globe text-brand-500 mt-0.5"></i>
@@ -1155,6 +984,134 @@ const PAGE = html`<!DOCTYPE html>
       }, 6000);
     }, 1200);
   }
+
+  // ── Dynamic CMS content loader ───────────────────────────────────
+  async function loadCmsContent() {
+    try {
+      const res = await fetch('/api/public/content');
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // ── Services ──────────────────────────────────────────────────
+      const sg = document.getElementById('services-grid');
+      if (sg && data.services && data.services.length) {
+        sg.innerHTML = data.services.map(s => \`
+          <article class="service-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group cursor-pointer">
+            <div class="p-6">
+              <div class="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center mb-5">
+                <i class="\${s.icon} text-brand-600 text-2xl"></i>
+              </div>
+              <span class="inline-block bg-brand-500/10 text-brand-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-3">\${s.badge}</span>
+              <h3 class="font-display font-bold text-lg text-dark mb-3">\${s.title}</h3>
+              <p class="text-gray-500 text-sm leading-relaxed mb-4">\${s.description}</p>
+              <ul class="space-y-1.5 text-sm text-gray-600">
+                <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> \${s.bullet1}</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> \${s.bullet2}</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check-circle text-brand-500 text-xs"></i> \${s.bullet3}</li>
+              </ul>
+            </div>
+          </article>\`).join('');
+      }
+
+      // ── Projects ──────────────────────────────────────────────────
+      const pg = document.getElementById('projects-grid');
+      if (pg && data.projects && data.projects.length) {
+        pg.innerHTML = data.projects.map(p => \`
+          <article class="project-card rounded-2xl overflow-hidden shadow-md group cursor-pointer relative">
+            <img src="\${p.image_url}" alt="\${p.title}"
+              class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+              onerror="this.src='https://placehold.co/640x480/1a3072/ffffff?text=\${encodeURIComponent(p.title)}'"/>
+            <div class="overlay absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/50 to-transparent flex flex-col justify-end p-6">
+              <span class="text-brand-400 text-xs font-bold uppercase tracking-widest mb-2">\${p.category}</span>
+              <h3 class="text-white font-display font-bold text-xl mb-2">\${p.title}</h3>
+              <p class="text-gray-300 text-sm mb-3">\${p.description}</p>
+              <div class="flex items-center gap-3 text-xs text-gray-400">
+                <span class="flex items-center gap-1"><i class="fas fa-map-marker-alt text-brand-400"></i> \${p.location}</span>
+                <span class="flex items-center gap-1"><i class="fas fa-clock text-brand-400"></i> \${p.duration}</span>
+              </div>
+            </div>
+            <div class="p-5 bg-white border-t border-gray-100">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-dark text-sm">\${p.title}</p>
+                  <p class="text-gray-400 text-xs mt-0.5">\${p.client}</p>
+                </div>
+                <span class="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600">
+                  <i class="\${p.icon} text-sm"></i>
+                </span>
+              </div>
+            </div>
+          </article>\`).join('');
+      }
+
+      // ── About section ─────────────────────────────────────────────
+      if (data.about) {
+        const ah = document.getElementById('about-heading');
+        const ab1 = document.getElementById('about-body1');
+        const ab2 = document.getElementById('about-body2');
+        const am = document.getElementById('about-mission');
+        const av = document.getElementById('about-vision');
+        if (ah) ah.textContent = data.about.heading;
+        if (ab1) ab1.textContent = data.about.body1;
+        if (ab2) ab2.textContent = data.about.body2;
+        if (am) am.textContent = data.about.mission;
+        if (av) av.textContent = data.about.vision;
+      }
+
+      // ── Hero section ──────────────────────────────────────────────
+      if (data.hero) {
+        const hb = document.getElementById('hero-badge');
+        const hh = document.getElementById('hero-heading');
+        const hhl = document.getElementById('hero-highlight');
+        const hs = document.getElementById('hero-subheading');
+        if (hb) hb.textContent = data.hero.badge;
+        if (hh) hh.textContent = data.hero.heading;
+        if (hhl) hhl.textContent = data.hero.highlight;
+        if (hs) hs.textContent = data.hero.subheading;
+      }
+
+      // ── Contact info ──────────────────────────────────────────────
+      if (data.contact) {
+        const ct = data.contact;
+        ['phone','email','address'].forEach(k => {
+          const el = document.getElementById('contact-' + k);
+          if (el) el.textContent = ct[k] || '';
+        });
+        const ph = document.getElementById('contact-phone-link');
+        const em = document.getElementById('contact-email-link');
+        const fb = document.getElementById('social-facebook');
+        const li = document.getElementById('social-linkedin');
+        const tw = document.getElementById('social-twitter');
+        const wa = document.getElementById('social-whatsapp');
+        if (ph && ct.phone) ph.href = 'tel:' + ct.phone.replace(/\s/g,'');
+        if (em && ct.email) em.href = 'mailto:' + ct.email;
+        if (fb && ct.facebook && ct.facebook !== '#') { fb.href = ct.facebook; fb.style.display='flex'; }
+        if (li && ct.linkedin && ct.linkedin !== '#') { li.href = ct.linkedin; li.style.display='flex'; }
+        if (tw && ct.twitter && ct.twitter !== '#') { tw.href = ct.twitter; tw.style.display='flex'; }
+        if (wa && ct.whatsapp && ct.whatsapp !== '#') { wa.href = ct.whatsapp; wa.style.display='flex'; }
+        // Footer
+        const fp = document.getElementById('footer-phone');
+        const fe = document.getElementById('footer-email');
+        const fa = document.getElementById('footer-address');
+        if (fp) { fp.textContent = ct.phone; fp.href = 'tel:' + (ct.phone||'').replace(/\s/g,''); }
+        if (fe) { fe.textContent = ct.email; fe.href = 'mailto:' + ct.email; }
+        if (fa) fa.textContent = ct.address;
+        // Footer social links
+        const ffb = document.getElementById('footer-facebook');
+        const fli = document.getElementById('footer-linkedin');
+        const ftw = document.getElementById('footer-twitter');
+        const fwa = document.getElementById('footer-whatsapp');
+        if (ffb && ct.facebook && ct.facebook !== '#') ffb.href = ct.facebook;
+        if (fli && ct.linkedin && ct.linkedin !== '#') fli.href = ct.linkedin;
+        if (ftw && ct.twitter && ct.twitter !== '#') ftw.href = ct.twitter;
+        if (fwa && ct.whatsapp && ct.whatsapp !== '#') fwa.href = ct.whatsapp;
+      }
+
+    } catch(e) {
+      console.warn('CMS content not available, using static content');
+    }
+  }
+  loadCmsContent();
 </script>
 
 </body>
@@ -1163,3 +1120,4 @@ const PAGE = html`<!DOCTYPE html>
 app.get('/', (c) => c.html(PAGE as string))
 
 export default app
+

@@ -1,62 +1,90 @@
-# Bright and Chaste Limited — Corporate Website
+# Bright and Chaste Limited — Website & CMS
 
 ## Project Overview
 - **Company**: Bright and Chaste Limited
-- **Type**: Civil Engineering & Construction Company
-- **Founded**: 2019 | **Based**: Nairobi, Kenya
-- **Accreditation**: NCA Level 3 (National Construction Authority)
+- **Industry**: Civil Engineering & Construction
+- **Location**: Nairobi, Kenya
+- **Founded**: 2019
+- **Accreditation**: NCA Level 3
 
-## Features
-- ✅ Responsive, mobile-first design
-- ✅ Hero section with animated content
-- ✅ About Us — mission, vision, values
-- ✅ Services: Road Construction, Building Construction, Water Engineering, ICT Infrastructure
-- ✅ Featured Projects showcase
-- ✅ Why Choose Us section
-- ✅ Contact form with validation
-- ✅ Footer with social links
-- ✅ Sticky navbar with scroll behaviour
-- ✅ Back-to-top button
-- ✅ Smooth scroll & fade-in animations
+## Live URLs
+- **Website**: https://brightandchaste.pages.dev (or custom domain)
+- **CMS Admin**: https://brightandchaste.pages.dev/cms
+- **GitHub**: https://github.com/lakliech/brightandchaste
 
-## Tech Stack
-- **Framework**: Hono (TypeScript)
-- **Runtime**: Cloudflare Pages / Workers
-- **Build**: Vite + @hono/vite-build
-- **Styling**: Tailwind CSS (CDN)
-- **Icons**: Font Awesome 6
+## Features Implemented
+- ✅ Full responsive website (Hero, About, Services, Projects, Contact, Footer)
+- ✅ Onest font throughout, navy blue brand palette (#1a3072)
+- ✅ Official Bright & Chaste logo in navbar and footer
+- ✅ Dynamic content loaded from Cloudflare D1 database via CMS
+- ✅ CMS Admin Panel at `/cms` with secure session-based login
+- ✅ Manage: Hero section, About/Mission/Vision, Services, Projects, Contact Info, Settings
+- ✅ Services & Projects rendered dynamically from DB
+- ✅ Contact details (phone, email, address, social links) updated from CMS
+- ✅ NCA Level 3 accreditation badge displayed throughout
+- ✅ Mobile responsive with hamburger menu
+
+## CMS Admin Panel (`/cms`)
+- **URL**: `https://your-domain.com/cms`
+- **Default login**: `admin` / `admin123` (**change this after first login!**)
+- **Sections**:
+  - Dashboard — overview of services & projects count
+  - Hero Section — update homepage banner text and buttons
+  - About Us — edit company description, mission, vision
+  - Services — add/edit/delete/reorder services with icon, badge, bullets
+  - Projects — add/edit/delete/reorder projects with image URL, client, location
+  - Contact Info — phone, email, address, website, all social media links
+  - Site Settings — company name, tagline, NCA level, founding year
+  - Change Password — update the admin password
+
+## API Endpoints
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/cms/login` | Login with username/password |
+| POST | `/api/cms/logout` | Logout |
+| GET | `/api/cms/me` | Check session |
+| GET | `/api/public/content` | All public site content |
+| GET/PUT | `/api/cms/hero` | Manage hero section |
+| GET/PUT | `/api/cms/about` | Manage about section |
+| GET/POST/PUT/DELETE | `/api/cms/services/:id` | Manage services |
+| GET/POST/PUT/DELETE | `/api/cms/projects/:id` | Manage projects |
+| GET/PUT | `/api/cms/contact` | Manage contact info |
+| GET/PUT | `/api/cms/settings` | Manage site settings |
+
+## Data Architecture
+- **Database**: Cloudflare D1 (SQLite) — `brightandchaste-production`
+- **Tables**: `admins`, `sessions`, `hero`, `about`, `services`, `projects`, `contact`, `settings`
+- **Authentication**: Session tokens in HTTP-only cookies (8-hour expiry)
+- **Passwords**: SHA-256 hashed
+
+## Deployment — Cloudflare Pages
+1. Build: `npm run build` → outputs to `dist/`
+2. Deploy: `npx wrangler pages deploy dist --project-name brightandchaste`
+3. Create D1 production DB: `npx wrangler d1 create brightandchaste-production`
+4. Update `wrangler.jsonc` with real `database_id`
+5. Apply migrations: `npx wrangler d1 migrations apply brightandchaste-production`
 
 ## Local Development
 ```bash
 npm install
+npx wrangler d1 migrations apply brightandchaste-production --local
 npm run build
-pm2 start ecosystem.config.cjs
-# Open http://localhost:3000
+pm2 start ecosystem.config.cjs  # starts on port 3000 with D1 local binding
 ```
 
-## Deployment (Cloudflare Pages)
-```bash
-npm run build
-npx wrangler pages deploy dist --project-name bright-and-chaste
-```
+## Tech Stack
+- **Backend**: Hono (TypeScript) on Cloudflare Workers
+- **Database**: Cloudflare D1 (SQLite)
+- **Frontend**: Vanilla JS, Tailwind CSS (CDN), Font Awesome
+- **Fonts**: Onest (Google Fonts)
+- **Build**: Vite + @hono/vite-cloudflare-pages
+- **Process Manager**: PM2 (local dev)
 
-## Sections
-| Section | Anchor | Description |
-|---------|--------|-------------|
-| Hero | `#home` | Full-screen hero with CTA |
-| About | `#about` | Company background, M/V/V |
-| Services | `#services` | 4 core service cards |
-| Projects | `#projects` | Featured project gallery |
-| Why Us | `#why-us` | Differentiators grid |
-| Contact | `#contact` | Contact form + info |
+## Services Managed by CMS
+1. Road Construction
+2. Building Construction
+3. Water Engineering
+4. ICT Infrastructure Engineering
 
-## Contact Details (to update)
-- **Phone**: +254 700 000 000 *(update with real number)*
-- **Email**: info@brightandchaste.co.ke
-- **Website**: https://brightandchaste.co.ke
-- **Address**: Nairobi, Kenya *(update with full address)*
-
-## Status
-- **Build**: ✅ Passing
-- **Dev Server**: Running on port 3000
-- **Last Updated**: 2026-04-13
+## Last Updated
+April 2026

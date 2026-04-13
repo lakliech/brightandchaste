@@ -3,7 +3,12 @@
   "name": "brightandchaste",
   "compatibility_date": "2026-04-13",
   "pages_build_output_dir": "./dist",
-  "compatibility_flags": [
-    "nodejs_compat"
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "brightandchaste-production",
+      "database_id": "local-placeholder"
+    }
   ]
 }

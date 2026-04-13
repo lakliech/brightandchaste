@@ -14,7 +14,7 @@ const PAGE = html`<!DOCTYPE html>
 
   <!-- Favicons / brand colour -->
   <meta name="theme-color" content="#F59E0B" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/static/logo.png" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -126,28 +126,22 @@ const PAGE = html`<!DOCTYPE html>
     <div class="flex items-center justify-between h-20">
 
       <!-- Logo -->
-      <a href="#home" class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-brand-500 rounded-lg flex items-center justify-center shadow-lg">
-          <i class="fas fa-hard-hat text-white text-lg"></i>
-        </div>
-        <div class="leading-tight">
-          <span class="block text-white font-display font-bold text-lg tracking-wide">Bright &amp; Chaste</span>
-          <span class="block text-brand-400 text-xs font-medium tracking-widest uppercase">Limited</span>
-        </div>
+      <a href="#home" class="flex items-center">
+        <img src="/static/logo.png" alt="Bright and Chaste Limited" class="h-10 w-auto brightness-0 invert" />
       </a>
 
       <!-- Desktop nav -->
       <ul class="hidden lg:flex items-center gap-8">
-        <li><a href="#home"     class="nav-link text-white/90 hover:text-white text-sm font-medium transition-colors">Home</a></li>
-        <li><a href="#about"    class="nav-link text-white/90 hover:text-white text-sm font-medium transition-colors">About Us</a></li>
-        <li><a href="#services" class="nav-link text-white/90 hover:text-white text-sm font-medium transition-colors">Services</a></li>
-        <li><a href="#projects" class="nav-link text-white/90 hover:text-white text-sm font-medium transition-colors">Projects</a></li>
-        <li><a href="#why-us"   class="nav-link text-white/90 hover:text-white text-sm font-medium transition-colors">Why Us</a></li>
-        <li><a href="#contact"  class="nav-link text-white/90 hover:text-white text-sm font-medium transition-colors">Contact</a></li>
+        <li><a href="#home"     class="nav-link text-white/90 hover:text-white text-sm font-semibold tracking-wide transition-colors">Home</a></li>
+        <li><a href="#about"    class="nav-link text-white/90 hover:text-white text-sm font-semibold tracking-wide transition-colors">About Us</a></li>
+        <li><a href="#services" class="nav-link text-white/90 hover:text-white text-sm font-semibold tracking-wide transition-colors">Services</a></li>
+        <li><a href="#projects" class="nav-link text-white/90 hover:text-white text-sm font-semibold tracking-wide transition-colors">Projects</a></li>
+        <li><a href="#why-us"   class="nav-link text-white/90 hover:text-white text-sm font-semibold tracking-wide transition-colors">Why Us</a></li>
+        <li><a href="#contact"  class="nav-link text-white/90 hover:text-white text-sm font-semibold tracking-wide transition-colors">Contact</a></li>
       </ul>
 
       <!-- CTA -->
-      <a href="#contact" class="hidden lg:inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors shadow-lg">
+      <a href="#contact" class="hidden lg:inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-700 text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors shadow-lg tracking-wide">
         <i class="fas fa-phone-alt text-xs"></i> Get a Quote
       </a>
 
@@ -212,23 +206,23 @@ const PAGE = html`<!DOCTYPE html>
       <!-- Quick stats strip -->
       <div class="fade-up delay-4 mt-16 flex flex-wrap gap-8">
         <div class="text-center">
-          <div class="stat-number text-3xl font-bold text-brand-400" data-target="6">0</div>
-          <div class="text-gray-400 text-xs mt-1 uppercase tracking-wide">Years Experience</div>
+          <div class="stat-number text-3xl font-bold text-blue-200 font-display" data-target="6">0</div>
+          <div class="text-gray-400 text-xs mt-1 uppercase tracking-widest font-semibold">Years Experience</div>
         </div>
         <div class="w-px bg-white/20 hidden sm:block"></div>
         <div class="text-center">
-          <div class="stat-number text-3xl font-bold text-brand-400" data-target="4">0</div>
-          <div class="text-gray-400 text-xs mt-1 uppercase tracking-wide">Core Services</div>
+          <div class="stat-number text-3xl font-bold text-blue-200 font-display" data-target="4">0</div>
+          <div class="text-gray-400 text-xs mt-1 uppercase tracking-widest font-semibold">Core Services</div>
         </div>
         <div class="w-px bg-white/20 hidden sm:block"></div>
         <div class="text-center">
-          <div class="stat-number text-3xl font-bold text-brand-400" data-target="3">0</div>
-          <div class="text-gray-400 text-xs mt-1 uppercase tracking-wide">NCA Level</div>
+          <div class="stat-number text-3xl font-bold text-blue-200 font-display" data-target="3">0</div>
+          <div class="text-gray-400 text-xs mt-1 uppercase tracking-widest font-semibold">NCA Level</div>
         </div>
         <div class="w-px bg-white/20 hidden sm:block"></div>
         <div class="text-center">
-          <div class="stat-number text-3xl font-bold text-brand-400">47</div>
-          <div class="text-gray-400 text-xs mt-1 uppercase tracking-wide">Counties Covered</div>
+          <div class="stat-number text-3xl font-bold text-blue-200 font-display">47</div>
+          <div class="text-gray-400 text-xs mt-1 uppercase tracking-widest font-semibold">Counties Covered</div>
         </div>
       </div>
 
@@ -970,14 +964,8 @@ const PAGE = html`<!DOCTYPE html>
 
       <!-- Brand -->
       <div class="lg:col-span-1">
-        <a href="#home" class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 bg-brand-500 rounded-lg flex items-center justify-center">
-            <i class="fas fa-hard-hat text-white text-lg"></i>
-          </div>
-          <div class="leading-tight">
-            <span class="block text-white font-display font-bold text-lg">Bright &amp; Chaste</span>
-            <span class="block text-brand-400 text-xs font-medium tracking-widest uppercase">Limited</span>
-          </div>
+        <a href="#home" class="flex items-center mb-5">
+          <img src="/static/logo.png" alt="Bright and Chaste Limited" class="h-9 w-auto brightness-0 invert" />
         </a>
         <p class="text-sm leading-relaxed mb-5">
           NCA Level 3 accredited civil engineering and construction company based in Nairobi, Kenya. Founded 2019.

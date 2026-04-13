@@ -123,11 +123,11 @@ const PAGE = html`<!DOCTYPE html>
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-transparent">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-20">
+    <div class="flex items-center justify-between h-24">
 
       <!-- Logo -->
       <a href="#home" class="flex items-center">
-        <img src="/static/logo.png" alt="Bright and Chaste Limited" class="h-10 w-auto brightness-0 invert" />
+        <img src="/static/logo.png" alt="Bright and Chaste Limited" class="h-16 w-auto brightness-0 invert" />
       </a>
 
       <!-- Desktop nav -->
@@ -965,7 +965,7 @@ const PAGE = html`<!DOCTYPE html>
       <!-- Brand -->
       <div class="lg:col-span-1">
         <a href="#home" class="flex items-center mb-5">
-          <img src="/static/logo.png" alt="Bright and Chaste Limited" class="h-9 w-auto brightness-0 invert" />
+          <img src="/static/logo.png" alt="Bright and Chaste Limited" class="h-14 w-auto brightness-0 invert" />
         </a>
         <p class="text-sm leading-relaxed mb-5">
           NCA Level 3 accredited civil engineering and construction company based in Nairobi, Kenya. Founded 2019.
